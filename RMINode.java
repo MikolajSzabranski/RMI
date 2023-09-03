@@ -12,11 +12,11 @@ import java.net.*;
 import java.util.Enumeration;
 
 public class RMINode implements RMIInterface {
-  private static String thisNodeID;
-  private static String leader;
-  private static ScheduledExecutorService executor;
-  private static String registryHostname;
-  private static Integer registryPort;
+  private static String THIS_NODE_ID;
+  private static String LEADER;
+  private static ScheduledExecutorService EXECUTOR;
+  private static String REGISTRY_HOSTNAME;
+  private static Integer REGISTRY_PORT;
   static RMIInterface nodeStub;
   private boolean isAlgorithmRunning;
   private Thread algorithmThread;
@@ -24,7 +24,7 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void setLeader(String leader) throws RemoteException {
-    RMINode.leader = leader;
+    RMINode.LEADER = leader;
   }
 
   public RMINode() {
@@ -83,21 +83,21 @@ public class RMINode implements RMIInterface {
   public void runAlgorithm(String host, Integer port, String id) {
     try {
       System.out.println("Algorithm running");
-      registryHostname = host;
-      registryPort = port;
-      thisNodeID = id;
+      REGISTRY_HOSTNAME = host;
+      REGISTRY_PORT = port;
+      THIS_NODE_ID = id;
 
-      registry = LocateRegistry.getRegistry(registryHostname, registryPort);
+      registry = LocateRegistry.getRegistry(REGISTRY_HOSTNAME, REGISTRY_PORT);
       RMIServerInterface serverStub = (RMIServerInterface) registry.lookup("0");
 
       nodeStub = (RMIInterface) UnicastRemoteObject.exportObject(this,
-          Integer.parseInt(thisNodeID) + registryPort);
+          Integer.parseInt(THIS_NODE_ID) + REGISTRY_PORT);
 
-      serverStub.registerNode(thisNodeID, nodeStub);
+      serverStub.registerNode(THIS_NODE_ID, nodeStub);
 
-      nodeStub.electionMessage(thisNodeID, null);
+      nodeStub.electionMessage(THIS_NODE_ID, null);
       // Schedule the coordinator check task
-      executor = Executors.newScheduledThreadPool(1);
+      EXECUTOR = Executors.newScheduledThreadPool(1);
 //      executor.scheduleAtFixedRate(this::checkCoordinatorStatus, 0, 10, TimeUnit.SECONDS);
       System.out.println("Algorithm running properly?");
       while (isAlgorithmRunning) {
@@ -107,11 +107,11 @@ public class RMINode implements RMIInterface {
           e.printStackTrace();
         }
       }
-      if (executor != null) {
-        executor.shutdownNow();
+      if (EXECUTOR != null) {
+        EXECUTOR.shutdownNow();
       }
       if (nodeStub != null) {
-        serverStub.unregisterNode(thisNodeID, registry);
+        serverStub.unregisterNode(THIS_NODE_ID, registry);
         System.out.println("Unbound and unregistered");
         UnicastRemoteObject.unexportObject(this, true);
         System.out.println("Unexported");
@@ -128,9 +128,9 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
-    if (!Objects.equals(starterId, thisNodeID)) {
-      if (winner < Integer.parseInt(thisNodeID)) {
-        winner = Integer.parseInt(thisNodeID);
+    if (!Objects.equals(starterId, THIS_NODE_ID)) {
+      if (winner < Integer.parseInt(THIS_NODE_ID)) {
+        winner = Integer.parseInt(THIS_NODE_ID);
       }
       boolean ifCurrent = false;
       for (String temp : registry.list()) {
@@ -143,9 +143,12 @@ public class RMINode implements RMIInterface {
             e.printStackTrace();
           }
         }
-        ifCurrent = Objects.equals(temp, thisNodeID);
+        ifCurrent = Objects.equals(temp, THIS_NODE_ID);
       }
     } else {
+      if (winner == null) {
+        winner = Integer.valueOf(THIS_NODE_ID);
+      }
       for (String winnerNode : registry.list()) {
         try {
           RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
@@ -161,12 +164,12 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void victoryMessage(String winner) throws RemoteException {
-    leader = winner;
+    LEADER = winner;
 //    if (winner.equals(thisNodeIDString)) {
     System.out.println("Leader send message to other nodes about his win");
     Arrays.stream(registry.list()).forEach(node -> {
           RMIInterface stub;
-          if (!node.equals(thisNodeID) && !node.equals("0")) {
+          if (!node.equals(THIS_NODE_ID) && !node.equals("0")) {
             try {
               stub = (RMIInterface) registry.lookup(node);
               System.out.println("Node " + node + " is informed about new leader");
@@ -181,13 +184,13 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void answerAlive(String destinationIDString, String nodeIDReplying) throws RemoteException {
-    if (!thisNodeID.equals(destinationIDString)) {
+    if (!THIS_NODE_ID.equals(destinationIDString)) {
       try {
         RMIInterface stub = (RMIInterface) registry.lookup(destinationIDString);
         System.out.println("Sending alive message to " + destinationIDString);
-        stub.answerAlive(destinationIDString, thisNodeID);
+        stub.answerAlive(destinationIDString, THIS_NODE_ID);
         // start election after sending OK
-        electionMessage(thisNodeID, Integer.valueOf(thisNodeID));
+        electionMessage(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
       } catch (Exception e) {
         e.printStackTrace();
       }
