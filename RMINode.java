@@ -131,7 +131,8 @@ public class RMINode implements RMIInterface {
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
 //    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
     boolean tempSter = false;
-    if (THIS_NODE_ID == Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get().toString()) {
+    String last = Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get();
+    if (Objects.equals(THIS_NODE_ID, last)) {
       tempSter = true;
     }
     if (winner == null) {
@@ -156,8 +157,13 @@ public class RMINode implements RMIInterface {
       ifCurrent = Objects.equals(temp, THIS_NODE_ID);
       if (tempSter) ifCurrent = true;
     }
+    System.out.println("WWWWwwww");
     if (tempSter) {
+      tempSter = false;
+      System.out.println("CCCCCCCCCCCCCCCCCCc");
       for (String winnerNode : registry.list()) {
+        System.out.println("\nXX " + (winner.toString() == winnerNode));
+        System.out.println("\nXX " + (winner.toString().equals(winnerNode)));
         if (winner.toString() == winnerNode) {
           System.out.println("\nCKECK");
           try {
