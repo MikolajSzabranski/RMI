@@ -157,11 +157,7 @@ public class RMINode implements RMIInterface {
         ifCurrent = Objects.equals(temp, THIS_NODE_ID);
       }
     } else {
-      if (winner == null) {
-        winner = Integer.valueOf(THIS_NODE_ID);
-      }
       for (String winnerNode : registry.list()) {
-        System.out.println("\n" + winnerNode + " : " + winner);
         if (winner.toString().equals(winnerNode)) {
           System.out.println("\nCKECK");
           //todo znalezienie winnera i tylko z niego wykonanie visctoryMessage
