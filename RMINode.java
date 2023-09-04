@@ -129,10 +129,11 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
-//    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
     boolean tempSter = false;
     String last = Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get();
-    if (Objects.equals(THIS_NODE_ID, last)) {
+//    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
+    System.out.println("FCHECK " + Objects.equals(THIS_NODE_ID, starterId) + " " + THIS_NODE_ID + " " + starterId);
+    if (Objects.equals(THIS_NODE_ID, last) && Objects.equals(THIS_NODE_ID, "0")) {
       tempSter = true;
     }
     if (winner == null) {
@@ -154,17 +155,15 @@ public class RMINode implements RMIInterface {
           e.printStackTrace();
         }
       }
+      System.out.println("\n XD " + temp + " " + THIS_NODE_ID + " " + Objects.equals(temp, THIS_NODE_ID));
       ifCurrent = Objects.equals(temp, THIS_NODE_ID);
       if (tempSter) ifCurrent = true;
     }
     System.out.println("WWWWwwww");
     if (tempSter) {
-      tempSter = false;
       System.out.println("CCCCCCCCCCCCCCCCCCc");
       for (String winnerNode : registry.list()) {
-        System.out.println("\nXX " + (winner.toString() == winnerNode));
-        System.out.println("\nXX " + (winner.toString().equals(winnerNode)));
-        if (winner.toString() == winnerNode) {
+        if (winner.toString().equals(winnerNode)) {
           System.out.println("\nCKECK");
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
