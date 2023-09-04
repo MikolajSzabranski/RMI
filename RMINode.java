@@ -132,7 +132,7 @@ public class RMINode implements RMIInterface {
     boolean tempSter = false;
     String last = Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get();
 //    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
-    System.out.println("FCHECK " + Objects.equals(THIS_NODE_ID, starterId) + " " + THIS_NODE_ID + " " + starterId);
+    System.out.println("FCHECK " + Objects.equals(THIS_NODE_ID, last) + " " + THIS_NODE_ID + " " + last);
     if (Objects.equals(THIS_NODE_ID, last)) {
       tempSter = true;
     }
@@ -143,7 +143,7 @@ public class RMINode implements RMIInterface {
     System.out.println("LIST: " + Arrays.toString(registry.list()));
     for (String temp : registry.list()) {
       System.out.println("test: " + temp + "  " + ifCurrent);
-      if (ifCurrent) {
+      if (ifCurrent && !Objects.equals(temp, last)) {
         System.out.println("NEXT: " + temp);
         try {
           RMIInterface stub = (RMIInterface) registry.lookup(temp);
@@ -155,7 +155,6 @@ public class RMINode implements RMIInterface {
       }
       System.out.println("\n XD " + temp + " " + THIS_NODE_ID + " " + Objects.equals(temp, THIS_NODE_ID));
       ifCurrent = Objects.equals(temp, THIS_NODE_ID);
-      if (tempSter) ifCurrent = true;
     }
     System.out.println("WWWWwwww");
     if (tempSter) {
