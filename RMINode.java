@@ -133,7 +133,7 @@ public class RMINode implements RMIInterface {
     String last = Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get();
 //    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
     System.out.println("FCHECK " + Objects.equals(THIS_NODE_ID, starterId) + " " + THIS_NODE_ID + " " + starterId);
-    if (Objects.equals(THIS_NODE_ID, last) && Objects.equals(THIS_NODE_ID, "0")) {
+    if (Objects.equals(THIS_NODE_ID, last)) {
       tempSter = true;
     }
     if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
