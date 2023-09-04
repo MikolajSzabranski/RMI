@@ -136,10 +136,8 @@ public class RMINode implements RMIInterface {
     if (Objects.equals(THIS_NODE_ID, last) && Objects.equals(THIS_NODE_ID, "0")) {
       tempSter = true;
     }
-    if (winner == null) {
+    if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
       winner = Integer.valueOf(THIS_NODE_ID);
-    } else if (winner < Integer.parseInt(THIS_NODE_ID)) {
-      winner = Integer.parseInt(THIS_NODE_ID);
     }
     boolean ifCurrent = false;
     System.out.println("LIST: " + Arrays.toString(registry.list()));
