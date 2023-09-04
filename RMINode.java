@@ -40,8 +40,7 @@ public class RMINode implements RMIInterface {
   public static void main(String[] args) {
     RMINode node = new RMINode();
 //    node.startAlgorithm("127.0.0.1", 5696, "7");
-    node.startAlgorithm("25.31.77.86", 5696, "7");
-//    node.startAlgorithm("10.0.2.6", 5696, "7");
+    node.startAlgorithm("25.31.77.86", 5696, "11");
   }
 
   private String getLocalIPAddress() {
@@ -110,6 +109,7 @@ public class RMINode implements RMIInterface {
       while (isAlgorithmRunning) {
         try {
           Thread.sleep(7000);
+          System.out.println("LEADER: " + LEADER);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
@@ -135,12 +135,16 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
-    if (!Objects.equals(starterId, THIS_NODE_ID)) {
-      if (winner < Integer.parseInt(THIS_NODE_ID)) {
+    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
+      if (winner == null){
+        winner = Integer.valueOf(THIS_NODE_ID);
+      } else if (winner < Integer.parseInt(THIS_NODE_ID)) {
         winner = Integer.parseInt(THIS_NODE_ID);
       }
       boolean ifCurrent = false;
+      System.out.println("LIST: " + Arrays.toString(registry.list()));
       for (String temp : registry.list()) {
+        System.out.println("test: " + temp);
         if (ifCurrent) {
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(temp);
