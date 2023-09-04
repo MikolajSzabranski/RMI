@@ -130,29 +130,33 @@ public class RMINode implements RMIInterface {
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
 //    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
-    if (THIS_NODE_ID != Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get()) {
-      if (winner == null) {
-        winner = Integer.valueOf(THIS_NODE_ID);
-      } else if (winner < Integer.parseInt(THIS_NODE_ID)) {
-        winner = Integer.parseInt(THIS_NODE_ID);
-      }
-      boolean ifCurrent = false;
-      System.out.println("LIST: " + Arrays.toString(registry.list()));
-      for (String temp : registry.list()) {
-        System.out.println("test: " + temp + "  " + ifCurrent);
-        if (ifCurrent) {
-          System.out.println("NEXT: " + temp);
-          try {
-            RMIInterface stub = (RMIInterface) registry.lookup(temp);
-            System.out.println("Call election method in next node: " + temp);
-            stub.electionMessage(starterId, winner);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
+    System.out.println("\n\nWWW   " + Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get());
+    boolean tempSter = false;
+    if (THIS_NODE_ID != Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get().toString()) {
+      tempSter = true;
+    }
+    if (winner == null) {
+      winner = Integer.valueOf(THIS_NODE_ID);
+    } else if (winner < Integer.parseInt(THIS_NODE_ID)) {
+      winner = Integer.parseInt(THIS_NODE_ID);
+    }
+    boolean ifCurrent = false;
+    System.out.println("LIST: " + Arrays.toString(registry.list()));
+    for (String temp : registry.list()) {
+      System.out.println("test: " + temp + "  " + ifCurrent);
+      if (ifCurrent) {
+        System.out.println("NEXT: " + temp);
+        try {
+          RMIInterface stub = (RMIInterface) registry.lookup(temp);
+          System.out.println("Call election method in next node: " + temp);
+          stub.electionMessage(starterId, winner);
+        } catch (Exception e) {
+          e.printStackTrace();
         }
-        ifCurrent = Objects.equals(temp, THIS_NODE_ID);
       }
-    } else {
+      ifCurrent = Objects.equals(temp, THIS_NODE_ID);
+    }
+    if (tempSter) {
       for (String winnerNode : registry.list()) {
         if (winner.toString().equals(winnerNode)) {
           System.out.println("\nCKECK");
@@ -167,6 +171,7 @@ public class RMINode implements RMIInterface {
       }
 //      answerAlive(nodeIDString, thisNodeIDString);
     }
+
   }
 
   @Override
