@@ -34,7 +34,7 @@ public class RMINode implements RMIInterface {
   public static void main(String[] args) {
     RMINode node = new RMINode();
 //    node.startAlgorithm("127.0.0.1", 5696, "7");
-    node.startAlgorithm("25.31.77.86", 5696, "150");
+    node.startAlgorithm("25.31.77.86", 5696, "1250");
   }
 
   private String getLocalIPAddress() {
@@ -130,7 +130,6 @@ public class RMINode implements RMIInterface {
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
 //    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
-    System.out.println("\n\nWWW   " + Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get());
     boolean tempSter = false;
     if (THIS_NODE_ID == Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get().toString()) {
       tempSter = true;
@@ -159,7 +158,7 @@ public class RMINode implements RMIInterface {
     }
     if (tempSter) {
       for (String winnerNode : registry.list()) {
-        if (winner.toString().equals(winnerNode)) {
+        if (winner.toString() == winnerNode) {
           System.out.println("\nCKECK");
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
