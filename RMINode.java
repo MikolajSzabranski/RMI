@@ -13,12 +13,6 @@ import java.util.Enumeration;
 
 public class RMINode implements RMIInterface {
   private static String THIS_NODE_ID;
-
-  @Override
-  public String getLeader() {
-    return RMINode.LEADER;
-  }
-
   private static String LEADER;
   private static ScheduledExecutorService EXECUTOR;
   private static String REGISTRY_HOSTNAME;
@@ -144,8 +138,9 @@ public class RMINode implements RMIInterface {
       boolean ifCurrent = false;
       System.out.println("LIST: " + Arrays.toString(registry.list()));
       for (String temp : registry.list()) {
-        System.out.println("test: " + temp);
+        System.out.println("test: " + temp + "  " + ifCurrent);
         if (ifCurrent) {
+          System.out.println("NEXT: " + temp);
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(temp);
             System.out.println("Call election method in next node: " + temp);
@@ -160,7 +155,6 @@ public class RMINode implements RMIInterface {
       for (String winnerNode : registry.list()) {
         if (winner.toString().equals(winnerNode)) {
           System.out.println("\nCKECK");
-          //todo znalezienie winnera i tylko z niego wykonanie visctoryMessage
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
             System.out.println("Informing node " + winnerNode + " of this node's victory");
@@ -181,14 +175,12 @@ public class RMINode implements RMIInterface {
     System.out.println("Leader send message to other nodes about his win");
     Arrays.stream(registry.list()).forEach(node -> {
           RMIInterface stub;
-          System.out.println("\nA");
           if (!node.equals(THIS_NODE_ID) && !node.equals("0")) {
-            System.out.println("\nB");
             try {
               stub = (RMIInterface) registry.lookup(node);
               System.out.println("Node " + node + " is informed about new leader");
               stub.setLeader(winner);
-              System.out.println("LEADER: " + stub.getLeader());
+              System.out.println("LEADER: " + LEADER);
             } catch (Exception e) {
               e.printStackTrace();
             }
