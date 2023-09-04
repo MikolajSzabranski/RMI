@@ -12,14 +12,14 @@ import java.util.TimerTask;
 
 public class RMIServer implements RMIServerInterface {
 
-  private static final long NODE_CHECK_INTERVAL = 4000; // Check node liveness every 4 seconds
-  private List<String> registeredNodes; // List to store registered node IDs
+  private static final long NODE_CHECK_TIME = 4000;
   private static String REGISTRY_HOSTNAME;
   private static Integer REGISTRY_PORT;
   private static Registry REGISTRY;
-  private Thread serverThread;
-  private boolean isServerRunning;
   private static RMIServerInterface stub;
+  private List<String> registeredNodes;
+  private boolean isServerRunning;
+  private Thread serverThread;
 
   public RMIServer() {
     super();
@@ -30,7 +30,6 @@ public class RMIServer implements RMIServerInterface {
     try {
 //      REGISTRY_HOSTNAME = "127.0.0.1";
       REGISTRY_HOSTNAME = "25.31.77.86";
-//      REGISTRY_HOSTNAME = "10.0.2.6";
       REGISTRY_PORT = 5696;
       System.setProperty("java.rmi.server.hostname", REGISTRY_HOSTNAME);
       RMIServer server = new RMIServer();
@@ -42,7 +41,7 @@ public class RMIServer implements RMIServerInterface {
 
       // verify node liveness
       Timer timer = new Timer();
-      timer.scheduleAtFixedRate(new NodeLivenessCheckTask(server), 0, NODE_CHECK_INTERVAL);
+      timer.scheduleAtFixedRate(new NodeLivenessCheckTask(server), 0, NODE_CHECK_TIME);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -79,7 +78,7 @@ public class RMIServer implements RMIServerInterface {
     System.out.println("RMIServer is ready.");
     // Schedule the node liveness check task
     Timer timer = new Timer();
-    timer.scheduleAtFixedRate(new NodeLivenessCheckTask(this), 0, NODE_CHECK_INTERVAL);
+    timer.scheduleAtFixedRate(new NodeLivenessCheckTask(this), 0, NODE_CHECK_TIME);
 
     while (isServerRunning) {
       try {

@@ -12,14 +12,14 @@ import java.net.*;
 import java.util.Enumeration;
 
 public class RMINode implements RMIInterface {
-  private static String THIS_NODE_ID;
-  private static String LEADER;
   private static ScheduledExecutorService EXECUTOR;
   private static String REGISTRY_HOSTNAME;
   private static Integer REGISTRY_PORT;
+  private static String THIS_NODE_ID;
+  private static String LEADER;
+  private boolean running;
   static RMIInterface nodeStub;
-  private boolean isAlgorithmRunning;
-  private Thread algorithmThread;
+  private Thread thread;
   Registry registry;
 
   @Override
@@ -28,7 +28,7 @@ public class RMINode implements RMIInterface {
   }
 
   public RMINode() {
-    isAlgorithmRunning = false;
+    running = false;
   }
 
   public static void main(String[] args) {
@@ -74,9 +74,9 @@ public class RMINode implements RMIInterface {
     }
 
     System.out.println("Starting algorithm");
-    isAlgorithmRunning = true;
-    algorithmThread = new Thread(() -> runAlgorithm(host, port, id));
-    algorithmThread.start();
+    thread = new Thread(() -> runAlgorithm(host, port, id));
+    running = true;
+    thread.start();
     System.out.println("Started algorithm");
   }
 
@@ -100,7 +100,7 @@ public class RMINode implements RMIInterface {
       EXECUTOR = Executors.newScheduledThreadPool(1);
 //      executor.scheduleAtFixedRate(this::checkCoordinatorStatus, 0, 10, TimeUnit.SECONDS);
       System.out.println("Algorithm running properly?");
-      while (isAlgorithmRunning) {
+      while (running) {
         try {
           Thread.sleep(7000);
           System.out.println("LEADER: " + LEADER);
@@ -117,23 +117,17 @@ public class RMINode implements RMIInterface {
         UnicastRemoteObject.unexportObject(this, true);
         System.out.println("Unexported");
       }
-      algorithmThread.interrupt();
+      thread.interrupt();
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  public void stopAlgorithm() {
-    isAlgorithmRunning = false;
-  }
-
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
     if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
-      if (winner == null){
+      if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
         winner = Integer.valueOf(THIS_NODE_ID);
-      } else if (winner < Integer.parseInt(THIS_NODE_ID)) {
-        winner = Integer.parseInt(THIS_NODE_ID);
       }
       boolean ifCurrent = false;
       System.out.println("LIST: " + Arrays.toString(registry.list()));
@@ -154,7 +148,6 @@ public class RMINode implements RMIInterface {
     } else {
       for (String winnerNode : registry.list()) {
         if (winner.toString().equals(winnerNode)) {
-          System.out.println("\nCKECK");
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
             System.out.println("Informing node " + winnerNode + " of this node's victory");
@@ -171,7 +164,6 @@ public class RMINode implements RMIInterface {
   @Override
   public void victoryMessage(String winner) throws RemoteException {
     LEADER = winner;
-//    if (winner.equals(thisNodeIDString)) {
     System.out.println("Leader send message to other nodes about his win");
     Arrays.stream(registry.list()).forEach(node -> {
           RMIInterface stub;
@@ -210,6 +202,7 @@ public class RMINode implements RMIInterface {
   public boolean isAlive() throws RemoteException {
     return true;
   }
+
 //
 //  private void checkCoordinatorStatus() {
 //    try {
@@ -225,7 +218,7 @@ public class RMINode implements RMIInterface {
 //    }
 //  }
 
-//  private static void coordinatorCrashed() {
+  //  private static void coordinatorCrashed() {
 //    System.out.println("Coordinator inactive, starting elections");
 //    try {
 //      nodeStub.electionMessage(thisNodeIDString, Integer.valueOf(thisNodeIDString));
@@ -233,4 +226,7 @@ public class RMINode implements RMIInterface {
 //      e.printStackTrace();
 //    }
 //  }
+  public void stopAlgorithm() {
+    running = false;
+  }
 }
