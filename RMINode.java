@@ -77,12 +77,11 @@ public class RMINode implements RMIInterface {
     isAlgorithmRunning = true;
     algorithmThread = new Thread(() -> runAlgorithm(host, port, id));
     algorithmThread.start();
-    System.out.println("Started algorithm");
+    System.out.println("Node started");
   }
 
   public void runAlgorithm(String host, Integer port, String id) {
     try {
-      System.out.println("Algorithm running");
       REGISTRY_HOSTNAME = host;
       REGISTRY_PORT = port;
       THIS_NODE_ID = id;
@@ -99,7 +98,6 @@ public class RMINode implements RMIInterface {
       // Schedule the coordinator check task
       EXECUTOR = Executors.newScheduledThreadPool(1);
 //      executor.scheduleAtFixedRate(this::checkCoordinatorStatus, 0, 10, TimeUnit.SECONDS);
-      System.out.println("Algorithm running properly?");
       while (isAlgorithmRunning) {
         try {
           Thread.sleep(7000);
