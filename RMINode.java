@@ -129,8 +129,9 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
-    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
-      if (winner == null){
+//    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
+    if (THIS_NODE_ID != Arrays.stream(registry.list()).skip(Arrays.stream(registry.list()).count() - 1).findFirst().get()) {
+      if (winner == null) {
         winner = Integer.valueOf(THIS_NODE_ID);
       } else if (winner < Integer.parseInt(THIS_NODE_ID)) {
         winner = Integer.parseInt(THIS_NODE_ID);
