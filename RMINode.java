@@ -13,6 +13,12 @@ import java.util.Enumeration;
 
 public class RMINode implements RMIInterface {
   private static String THIS_NODE_ID;
+
+  @Override
+  public String getLeader() {
+    return RMINode.LEADER;
+  }
+
   private static String LEADER;
   private static ScheduledExecutorService EXECUTOR;
   private static String REGISTRY_HOSTNAME;
@@ -33,7 +39,8 @@ public class RMINode implements RMIInterface {
 
   public static void main(String[] args) {
     RMINode node = new RMINode();
-    node.startAlgorithm("127.0.0.1", 5696, "7");
+//    node.startAlgorithm("127.0.0.1", 5696, "7");
+    node.startAlgorithm("25.31.77.86", 5696, "7");
 //    node.startAlgorithm("10.0.2.6", 5696, "7");
   }
 
@@ -150,12 +157,17 @@ public class RMINode implements RMIInterface {
         winner = Integer.valueOf(THIS_NODE_ID);
       }
       for (String winnerNode : registry.list()) {
-        try {
-          RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
-          System.out.println("Informing node " + winnerNode + " of this node's victory");
-          stub.victoryMessage(winner.toString());
-        } catch (Exception e) {
-          e.printStackTrace();
+        System.out.println("\n" + winnerNode + " : " + winner);
+        if (winner.toString().equals(winnerNode)) {
+          System.out.println("\nCKECK");
+          //todo znalezienie winnera i tylko z niego wykonanie visctoryMessage
+          try {
+            RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
+            System.out.println("Informing node " + winnerNode + " of this node's victory");
+            stub.victoryMessage(winner.toString());
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
         }
       }
 //      answerAlive(nodeIDString, thisNodeIDString);
@@ -169,11 +181,14 @@ public class RMINode implements RMIInterface {
     System.out.println("Leader send message to other nodes about his win");
     Arrays.stream(registry.list()).forEach(node -> {
           RMIInterface stub;
+          System.out.println("\nA");
           if (!node.equals(THIS_NODE_ID) && !node.equals("0")) {
+            System.out.println("\nB");
             try {
               stub = (RMIInterface) registry.lookup(node);
               System.out.println("Node " + node + " is informed about new leader");
               stub.setLeader(winner);
+              System.out.println("LEADER: " + stub.getLeader());
             } catch (Exception e) {
               e.printStackTrace();
             }
