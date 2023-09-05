@@ -34,7 +34,7 @@ public class RMINode implements RMIInterface {
   public static void main(String[] args) {
     RMINode node = new RMINode();
 //    node.startAlgorithm("127.0.0.1", 5696, "7");
-    node.startAlgorithm("25.31.77.86", 5696, "11");
+    node.startAlgorithm("25.31.77.86", 5696, "1");
   }
 
   private String getLocalIPAddress() {
@@ -95,7 +95,9 @@ public class RMINode implements RMIInterface {
 
       serverStub.registerNode(THIS_NODE_ID, nodeStub);
 
-      nodeStub.electionMessage(THIS_NODE_ID, null);
+      RMIInterface stub = (RMIInterface) registry.lookup(Arrays.stream(registry.list()).findFirst().get());
+
+      nodeStub.electionMessage(THIS_NODE_ID, Integer.valueOf(stub.getLeader()), true);
       // Schedule the coordinator check task
       EXECUTOR = Executors.newScheduledThreadPool(1);
 //      executor.scheduleAtFixedRate(this::checkCoordinatorStatus, 0, 10, TimeUnit.SECONDS);
@@ -124,9 +126,9 @@ public class RMINode implements RMIInterface {
   }
 
   @Override
-  public void electionMessage(String starterId, Integer winner) throws RemoteException {
-    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
-      if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
+  public void electionMessage(String starterId, Integer winner, boolean firstLoop) throws RemoteException {
+    if (!Objects.equals(starterId, THIS_NODE_ID) && !firstLoop) {
+      if (winner < Integer.parseInt(THIS_NODE_ID)) {
         winner = Integer.valueOf(THIS_NODE_ID);
       }
       boolean ifCurrent = false;
@@ -138,7 +140,7 @@ public class RMINode implements RMIInterface {
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(temp);
             System.out.println("Call election method in next node: " + temp);
-            stub.electionMessage(starterId, winner);
+            stub.electionMessage(starterId, winner, false);
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -189,7 +191,7 @@ public class RMINode implements RMIInterface {
         System.out.println("Sending alive message to " + destinationIDString);
         stub.answerAlive(destinationIDString, THIS_NODE_ID);
         // start election after sending OK
-        electionMessage(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
+        electionMessage(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID), false);
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -228,5 +230,10 @@ public class RMINode implements RMIInterface {
 //  }
   public void stopAlgorithm() {
     running = false;
+  }
+
+  @Override
+  public String getLeader(){
+    return LEADER;
   }
 }
