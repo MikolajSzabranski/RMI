@@ -95,7 +95,7 @@ public class RMINode implements RMIInterface {
 
       serverStub.registerNode(THIS_NODE_ID, nodeStub);
 
-      nodeStub.electionMessage(THIS_NODE_ID, null);
+      nodeStub.electionMessage(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
       // Schedule the coordinator check task
       EXECUTOR = Executors.newScheduledThreadPool(1);
 //      executor.scheduleAtFixedRate(this::checkCoordinatorStatus, 0, 10, TimeUnit.SECONDS);
@@ -125,7 +125,11 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
-    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
+    System.out.println("WW " + Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get());
+    System.out.println("WW " + THIS_NODE_ID);
+    System.out.println(!Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get().equals(THIS_NODE_ID));
+    if (!Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get().equals(THIS_NODE_ID)) {
+//    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
       if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
         winner = Integer.valueOf(THIS_NODE_ID);
       }
@@ -147,6 +151,9 @@ public class RMINode implements RMIInterface {
       }
     } else {
       for (String winnerNode : registry.list()) {
+        System.out.println("\nC " + winner.toString().equals(winnerNode));
+        System.out.println("\nC " + winner);
+        System.out.println("\nC " + winnerNode);
         if (winner.toString().equals(winnerNode)) {
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
