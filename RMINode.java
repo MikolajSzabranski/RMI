@@ -125,12 +125,13 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
-    System.out.println("WW " + Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get() + " " + THIS_NODE_ID + " czy równe: " + Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get().equals(THIS_NODE_ID));
+    System.out.println("WW " + Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get() + " " + THIS_NODE_ID);
     if (!Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get().equals(THIS_NODE_ID)) {
 //    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
       if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
         winner = Integer.valueOf(THIS_NODE_ID);
       }
+      System.out.println("current winner is " + winner);
       boolean ifCurrent = false;
       System.out.println("LIST: " + Arrays.toString(registry.list()));
       for (String temp : registry.list()) {
