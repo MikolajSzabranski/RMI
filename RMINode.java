@@ -33,7 +33,7 @@ public class RMINode implements RMIInterface {
 
   public static void main(String[] args) {
     RMINode node = new RMINode();
-    node.startAlgorithm("25.31.77.86", 5696, "11");
+    node.startAlgorithm("25.31.77.86", 5696, "2");
   }
 
   private String getLocalIPAddress() {
@@ -93,9 +93,9 @@ public class RMINode implements RMIInterface {
       serverStub.registerNode(THIS_NODE_ID, nodeStub);
 
       nodeStub.chooseNewLeader(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
-      // Coordinator check task
+
       EXECUTOR = Executors.newScheduledThreadPool(1);
-//      executor.scheduleAtFixedRate(this::checkCoordinatorStatus, 0, 10, TimeUnit.SECONDS);
+
       while (running) {
         try {
           Thread.sleep(7000);
@@ -151,7 +151,6 @@ public class RMINode implements RMIInterface {
           }
         }
       }
-//      answerAlive(nodeIDString, thisNodeIDString);
     }
   }
 
@@ -197,29 +196,6 @@ public class RMINode implements RMIInterface {
     return true;
   }
 
-//
-//  private void checkCoordinatorStatus() {
-//    try {
-//      System.out.println("Coordinator check");
-//      RMIInterface coordinatorStub = (RMIInterface) registry.lookup(leader);
-//      coordinatorStub.isAlive();
-//    } catch (RemoteException e) {
-//      System.out.println("Exception, inactive coordinator ");
-//      coordinatorCrashed();
-//    } catch (Exception e) {
-//      System.out.println("Exception, inactive coordinator");
-//      coordinatorCrashed();
-//    }
-//  }
-
-  //  private static void coordinatorCrashed() {
-//    System.out.println("Coordinator inactive, starting elections");
-//    try {
-//      nodeStub.electionMessage(thisNodeIDString, Integer.valueOf(thisNodeIDString));
-//    } catch (RemoteException e) {
-//      e.printStackTrace();
-//    }
-//  }
   public void stopAlgorithm() {
     running = false;
   }
