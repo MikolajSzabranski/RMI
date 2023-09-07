@@ -1,20 +1,19 @@
 package rmicommunication;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class Ring {
-  private List<Integer> elements;
+public interface Ring<T> {
+  List<T> getElements();
 
-  public Ring() {
-    elements = new ArrayList<>();
-  }
+  void add(T element);
 
-  public void addElement(int element) {
-    elements.add(element);
-  }
+//  void delete(T element);
 
-  public int getLastElement() {
-    return elements.get(elements.size() - 1);
-  }
+  void delete(String element);
+
+  boolean ifEmpty();
+
+  List<T> init(String[] stream);
+
+  T getLast();
 }

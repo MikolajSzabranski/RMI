@@ -4,7 +4,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,6 +17,7 @@ public class RMINode implements RMIInterface {
   private static String THIS_NODE_ID;
   private static String LEADER;
   private boolean running;
+  private RingImpl ring = new RingImpl();
   static RMIInterface nodeStub;
   private Thread thread;
   Registry registry;
@@ -93,6 +93,7 @@ public class RMINode implements RMIInterface {
 
       serverStub.registerNode(THIS_NODE_ID, nodeStub);
 
+      ring.init(registry.list());
       nodeStub.chooseNewLeader(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
       // Coordinator check task
       EXECUTOR = Executors.newScheduledThreadPool(1);
@@ -122,30 +123,31 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void chooseNewLeader(String starterId, Integer winner) throws RemoteException {
-    if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
+    ring.init(registry.list());
+    if (winner < Integer.parseInt(THIS_NODE_ID)) {
       winner = Integer.valueOf(THIS_NODE_ID);
     }
-    if (!Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get().equals(THIS_NODE_ID)) {
+    if (!ring.getLast().toString().equals(THIS_NODE_ID)) {
+//    if (!Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get().equals(THIS_NODE_ID)) {
 //    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
       boolean ifCurrent = false;
-      System.out.println("LIST: " + Arrays.toString(registry.list()));
-      for (String temp : registry.list()) {
+      for (Object temp : ring.getElements()) {
         if (ifCurrent) {
           try {
-            RMIInterface stub = (RMIInterface) registry.lookup(temp);
+            RMIInterface stub = (RMIInterface) registry.lookup(temp.toString());
             System.out.println("Call election method in next node: " + temp);
             stub.chooseNewLeader(starterId, winner);
           } catch (Exception e) {
             e.printStackTrace();
           }
         }
-        ifCurrent = Objects.equals(temp, THIS_NODE_ID);
+        ifCurrent = Objects.equals(temp.toString(), THIS_NODE_ID);
       }
     } else {
-      for (String winnerNode : registry.list()) {
-        if (winner.toString().equals(winnerNode)) {
+      for (Object winnerNode : ring.getElements()) {
+        if (winner.toString().equals(winnerNode.toString())) {
           try {
-            RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
+            RMIInterface stub = (RMIInterface) registry.lookup(winnerNode.toString());
             System.out.println("Send victory info");
             stub.sendWinnerInfoToNodes(winner.toString());
           } catch (Exception e) {
@@ -161,14 +163,13 @@ public class RMINode implements RMIInterface {
   public void sendWinnerInfoToNodes(String winner) throws RemoteException {
     LEADER = winner;
     System.out.println("Send message to other nodes about his win");
-    Arrays.stream(registry.list()).forEach(node -> {
+    ring.getElements().forEach(node -> {
           RMIInterface stub;
-          if (!node.equals(THIS_NODE_ID) && !node.equals("0")) {
+          if (!node.toString().equals(THIS_NODE_ID) && !node.toString().equals("0")) {
             try {
-              stub = (RMIInterface) registry.lookup(node);
+              stub = (RMIInterface) registry.lookup(node.toString());
               System.out.println("Send info about new leader to " + node);
               stub.setLeader(winner);
-              System.out.println("LEADER: " + LEADER);
             } catch (Exception e) {
               e.printStackTrace();
             }
@@ -223,6 +224,7 @@ public class RMINode implements RMIInterface {
 //    }
 //  }
   public void stopAlgorithm() {
+    ring.delete(THIS_NODE_ID);
     running = false;
   }
 }
