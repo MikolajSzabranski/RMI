@@ -16,7 +16,7 @@ public class RMIServer implements RMIServerInterface {
   private static String REGISTRY_HOSTNAME;
   private static Integer REGISTRY_PORT;
   private static Registry REGISTRY;
-  private static RMIServerInterface stub;
+  private static RMIServerInterface STUB;
   private List<String> registeredNodes;
   private boolean isServerRunning;
   private Thread serverThread;
@@ -32,10 +32,10 @@ public class RMIServer implements RMIServerInterface {
       REGISTRY_PORT = 5696;
       System.setProperty("java.rmi.server.hostname", REGISTRY_HOSTNAME);
       RMIServer server = new RMIServer();
-      stub = (RMIServerInterface) UnicastRemoteObject.exportObject(server, (REGISTRY_PORT - 1));
+      STUB = (RMIServerInterface) UnicastRemoteObject.exportObject(server, (REGISTRY_PORT - 1));
 
       REGISTRY = LocateRegistry.createRegistry(REGISTRY_PORT);
-      REGISTRY.bind("0", stub);
+      REGISTRY.bind("0", STUB);
       System.out.println("RMI stub is registered. \nRMIServer is online");
 
       // verify node liveness

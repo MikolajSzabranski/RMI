@@ -93,7 +93,7 @@ public class RMINode implements RMIInterface {
 
       serverStub.registerNode(THIS_NODE_ID, nodeStub);
 
-      nodeStub.electionMessage(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
+      nodeStub.chooseNewLeader(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
       // Coordinator check task
       EXECUTOR = Executors.newScheduledThreadPool(1);
 //      executor.scheduleAtFixedRate(this::checkCoordinatorStatus, 0, 10, TimeUnit.SECONDS);
@@ -121,7 +121,7 @@ public class RMINode implements RMIInterface {
   }
 
   @Override
-  public void electionMessage(String starterId, Integer winner) throws RemoteException {
+  public void chooseNewLeader(String starterId, Integer winner) throws RemoteException {
     if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
       winner = Integer.valueOf(THIS_NODE_ID);
     }
@@ -134,7 +134,7 @@ public class RMINode implements RMIInterface {
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(temp);
             System.out.println("Call election method in next node: " + temp);
-            stub.electionMessage(starterId, winner);
+            stub.chooseNewLeader(starterId, winner);
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -147,7 +147,7 @@ public class RMINode implements RMIInterface {
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
             System.out.println("Send victory info");
-            stub.victoryMessage(winner.toString());
+            stub.sendWinnerInfoToNodes(winner.toString());
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -158,7 +158,7 @@ public class RMINode implements RMIInterface {
   }
 
   @Override
-  public void victoryMessage(String winner) throws RemoteException {
+  public void sendWinnerInfoToNodes(String winner) throws RemoteException {
     LEADER = winner;
     System.out.println("Send message to other nodes about his win");
     Arrays.stream(registry.list()).forEach(node -> {
@@ -185,7 +185,7 @@ public class RMINode implements RMIInterface {
         System.out.println("Sending alive message to " + destinationIDString);
         stub.answerAlive(destinationIDString, THIS_NODE_ID);
         // start election after sending OK
-        electionMessage(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
+        chooseNewLeader(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
       } catch (Exception e) {
         e.printStackTrace();
       }
