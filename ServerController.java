@@ -72,7 +72,7 @@ public class ServerController {
 
     if (isValidPortNumber(HostPort.getText())) {
       serverPort = Integer.parseInt(HostPort.getText());
-      Console.appendText(" Server Port: " + serverPort);
+      Console.appendText("\nServer Port: " + serverPort);
     } else {
       Console.appendText("Błędny numer portu");
       return;
@@ -90,12 +90,10 @@ public class ServerController {
   }
 
   private void runServer() {
-    Console.appendText("Start\n");
     server.startServer(serverIP, serverPort);
   }
 
   private void terminateServer() {
-    Console.appendText("Stop\n");
     server.stopServer();
   }
 

@@ -109,9 +109,8 @@ public class RMINode implements RMIInterface {
       }
       if (nodeStub != null) {
         serverStub.unregisterNode(THIS_NODE_ID, registry);
-        System.out.println("Unbound and unregistered");
         UnicastRemoteObject.unexportObject(this, true);
-        System.out.println("Unexported");
+        System.out.println("Delete node");
       }
       thread.interrupt();
     } catch (Exception e) {

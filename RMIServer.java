@@ -4,10 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 public class RMIServer implements RMIServerInterface {
@@ -38,9 +35,9 @@ public class RMIServer implements RMIServerInterface {
       REGISTRY.bind("0", STUB);
       System.out.println("RMI stub is registered. \nRMIServer is online");
 
-      // verify node liveness
+      // verify node
       Timer timer = new Timer();
-      timer.scheduleAtFixedRate(new NodeLivenessCheckTask(server), 0, NODE_CHECK_TIME);
+      timer.scheduleAtFixedRate(new LiveCheck(server), 0, NODE_CHECK_TIME);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -53,12 +50,10 @@ public class RMIServer implements RMIServerInterface {
       REGISTRY_PORT = port;
       System.setProperty("java.rmi.server.hostname", REGISTRY_HOSTNAME);
 
-      System.out.println("Starting server");
       isServerRunning = true;
       serverThread = new Thread(this::runServer);
       serverThread.start();
-      System.out.println("Started server");
-
+      System.out.println("RMI stub is registered. \nRMIServer is online\nServer is online");
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -75,9 +70,9 @@ public class RMIServer implements RMIServerInterface {
       System.err.println("Error running server: " + e);
     }
     System.out.println("RMIServer is ready.");
-    // Schedule the node liveness check task
+
     Timer timer = new Timer();
-    timer.scheduleAtFixedRate(new NodeLivenessCheckTask(this), 0, NODE_CHECK_TIME);
+    timer.scheduleAtFixedRate(new LiveCheck(this), 0, NODE_CHECK_TIME);
 
     while (isServerRunning) {
       try {
@@ -127,8 +122,8 @@ public class RMIServer implements RMIServerInterface {
     }
   }
 
-  private void checkNodeLiveness() {
-    System.out.println("Checking Node liveliness");
+  private void checkNode() {
+//    System.out.println("Checking Node");
     List<String> nodesCopy;
     synchronized (registeredNodes) {
       nodesCopy = new ArrayList<>(registeredNodes);
@@ -149,16 +144,16 @@ public class RMIServer implements RMIServerInterface {
     }
   }
 
-  private static class NodeLivenessCheckTask extends TimerTask {
+  private static class LiveCheck extends TimerTask {
     private RMIServer server;
 
-    public NodeLivenessCheckTask(RMIServer server) {
+    public LiveCheck(RMIServer server) {
       this.server = server;
     }
 
     @Override
     public void run() {
-      server.checkNodeLiveness();
+      server.checkNode();
     }
   }
 
