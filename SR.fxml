@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="rmicommunication.Controller">
+   <children>
+      <SplitPane dividerPositions="0.40344467640918574, 0.708768267223382" layoutX="-3.0" layoutY="-3.0" orientation="VERTICAL" prefHeight="776.0" prefWidth="1032.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="273.0" prefWidth="1022.0">
+               <children>
+                  <SplitPane dividerPositions="0.32874015748031504" orientation="VERTICAL" prefHeight="324.0" prefWidth="1022.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="98.0" prefWidth="1020.0">
+                           <children>
+                              <Label alignment="TOP_CENTER" layoutX="-2.0" layoutY="11.0" prefHeight="35.0" prefWidth="1022.0" text="Tanenbaum - node" textAlignment="CENTER" textOverrun="WORD_ELLIPSIS" AnchorPane.bottomAnchor="63.0" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="11.0">
+                                 <font>
+                                    <Font name="Arial Bold" size="20.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </AnchorPane>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="112.0" prefWidth="1020.0">
+                           <children>
+                              <SplitPane dividerPositions="0.5" layoutX="426.0" layoutY="1.0" prefHeight="162.0" prefWidth="1020.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <items>
+                                  <AnchorPane>
+                                       <children>
+                                           <Label layoutX="125.0" layoutY="68.0" prefHeight="32.0" prefWidth="77.0"
+                                                  text="IP:"/>
+                                           <Label layoutX="191.0" layoutY="114.0" prefHeight="32.0" prefWidth="50.0"
+                                                  text="Port:"/>
+                                           <TextField fx:id="HostIP" layoutX="210.0" layoutY="64.0" prefHeight="41.0"
+                                                      prefWidth="173.0" text="25.31.77.86"/>
+                                           <TextField fx:id="HostPort" layoutX="241.0" layoutY="111.0" prefHeight="38.0"
+                                                      prefWidth="71.0" text="5696"/>
+                                       </children>
+                                    </AnchorPane>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="406.0">
+                                       <children>
+                                           <Label layoutX="138.0" layoutY="52.0" prefHeight="32.0" prefWidth="71.0"
+                                                  text="Node ID:"/>
+                                          <Spinner fx:id="NodeID" initialValue="1" layoutX="224.0" layoutY="56.0" max="10000" min="1" />
+                                           <Button fx:id="Start" layoutX="112.0" layoutY="103.0"
+                                                   mnemonicParsing="false" onAction="#run" prefHeight="35.0"
+                                                   prefWidth="97.0" text="Join"/>
+                                           <Button fx:id="Stop" disable="true" layoutX="302.0" layoutY="103.0"
+                                                   mnemonicParsing="false" onAction="#terminate" prefHeight="35.0"
+                                                   prefWidth="97.0" text="Quit"/>
+                                       </children>
+                                    </AnchorPane>
+                                </items>
+                              </SplitPane>
+                               <Label alignment="CENTER" layoutX="25.0" layoutY="13.0" prefHeight="32.0"
+                                      prefWidth="451.0" text="Server config"/>
+                           </children>
+                      </AnchorPane>
+                    </items>
+                  </SplitPane>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <SplitPane layoutX="333.0" layoutY="43.0" orientation="VERTICAL" prefHeight="436.0" prefWidth="1022.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                           <children>
+                              <ScrollPane layoutX="28.0" layoutY="3.0" prefHeight="401.0" prefWidth="966.0">
+                                 <content>
+                                     <TextArea fx:id="Console" editable="false" prefHeight="389.0" prefWidth="964.0"
+                                               wrapText="true"/>
+                                 </content>
+                              </ScrollPane>
+                           </children>
+                      </AnchorPane>
+                    </items>
+                  </SplitPane>
+               </children>
+            </AnchorPane>
+            <AnchorPane>
+                <Label alignment="CENTER" layoutX="600.0" layoutY="70.0" prefHeight="40.0" prefWidth="400.0" text="Mikołaj Szabrański WCY22KC1S4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="598.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="72.0">
+                    <font>
+                        <Font name="Arial Bold Italic" size="16.0" />
+                    </font>
+                </Label>
+                <Label alignment="CENTER" layoutX="850.0" layoutY="50.0" prefHeight="40.0" prefWidth="400.0" text="Systemy rozproszone " AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="598.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="40.0">
+                    <font>
+                        <Font name="Arial Bold Italic" size="16.0" />
+                    </font>
+                </Label>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>
