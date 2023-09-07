@@ -72,7 +72,6 @@ public class RMINode implements RMIInterface {
       System.err.println("Failed to set IP address.");
     }
 
-    System.out.println("Starting algorithm");
     thread = new Thread(() -> runAlgorithm(host, port, id));
     running = true;
     thread.start();
@@ -80,7 +79,7 @@ public class RMINode implements RMIInterface {
 
   public void runAlgorithm(String host, Integer port, String id) {
     try {
-      System.out.println("Start algorithm");
+      System.out.println("Run node");
       REGISTRY_HOSTNAME = host;
       REGISTRY_PORT = port;
       THIS_NODE_ID = id;
