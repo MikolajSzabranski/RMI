@@ -7,7 +7,7 @@ public interface RMIInterface extends Remote {
 
   void setLeader(String leader) throws RemoteException;
 
-  void electionMessage(String starterId, Integer winner) throws RemoteException;
+  void electionMessage(String starterId, Integer winner, boolean firstStep) throws RemoteException;
 
   void answerAlive(String destinationID, String nodeIDReplying) throws RemoteException;
 

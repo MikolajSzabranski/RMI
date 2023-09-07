@@ -1,17 +1,19 @@
 package rmicommunication;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.net.*;
-import java.util.Enumeration;
 
-public class RMINode implements RMIInterface {
+public class RMINode2 implements RMIInterface {
   private static ScheduledExecutorService EXECUTOR;
   private static String REGISTRY_HOSTNAME;
   private static Integer REGISTRY_PORT;
@@ -24,17 +26,17 @@ public class RMINode implements RMIInterface {
 
   @Override
   public void setLeader(String leader) throws RemoteException {
-    RMINode.LEADER = leader;
+    RMINode2.LEADER = leader;
   }
 
-  public RMINode() {
+  public RMINode2() {
     running = false;
   }
 
   public static void main(String[] args) {
-    RMINode node = new RMINode();
+    RMINode2 node = new RMINode2();
 //    node.startAlgorithm("127.0.0.1", 5696, "7");
-    node.startAlgorithm("25.31.77.86", 5696, "7000");
+    node.startAlgorithm("25.31.77.86", 5696, "2000");
   }
 
   private String getLocalIPAddress() {
