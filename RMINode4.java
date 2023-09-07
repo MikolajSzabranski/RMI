@@ -35,8 +35,7 @@ public class RMINode4 implements RMIInterface {
 
   public static void main(String[] args) {
     RMINode4 node = new RMINode4();
-//    node.startAlgorithm("127.0.0.1", 5696, "7");
-    node.startAlgorithm("25.31.77.86", 5696, "19");
+    node.startAlgorithm("25.31.77.86", 5696, "17");
   }
 
   private String getLocalIPAddress() {
@@ -70,21 +69,20 @@ public class RMINode4 implements RMIInterface {
     String localIPAddress = getLocalIPAddress();
     if (localIPAddress != null) {
       System.setProperty("java.rmi.server.hostname", localIPAddress);
-      System.out.println("Local RMI IP set to: " + localIPAddress);
+      System.out.println("RMI IP set to: " + localIPAddress);
     } else {
-      System.err.println("Failed to determine the local IP address.");
+      System.err.println("Failed to set IP address.");
     }
 
     System.out.println("Starting algorithm");
     thread = new Thread(() -> runAlgorithm(host, port, id));
     running = true;
     thread.start();
-    System.out.println("Started algorithm");
   }
 
   public void runAlgorithm(String host, Integer port, String id) {
     try {
-      System.out.println("Algorithm running");
+      System.out.println("Start algorithm");
       REGISTRY_HOSTNAME = host;
       REGISTRY_PORT = port;
       THIS_NODE_ID = id;
@@ -98,10 +96,9 @@ public class RMINode4 implements RMIInterface {
       serverStub.registerNode(THIS_NODE_ID, nodeStub);
 
       nodeStub.electionMessage(THIS_NODE_ID, Integer.valueOf(THIS_NODE_ID));
-      // Schedule the coordinator check task
+      // Coordinator check task
       EXECUTOR = Executors.newScheduledThreadPool(1);
 //      executor.scheduleAtFixedRate(this::checkCoordinatorStatus, 0, 10, TimeUnit.SECONDS);
-      System.out.println("Algorithm running properly?");
       while (running) {
         try {
           Thread.sleep(7000);
@@ -127,19 +124,15 @@ public class RMINode4 implements RMIInterface {
 
   @Override
   public void electionMessage(String starterId, Integer winner) throws RemoteException {
-    System.out.println("WW " + Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get() + " " + THIS_NODE_ID);
+    if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
+      winner = Integer.valueOf(THIS_NODE_ID);
+    }
     if (!Arrays.stream(registry.list()).skip(registry.list().length - 1).findFirst().get().equals(THIS_NODE_ID)) {
 //    if (!Objects.equals(starterId, THIS_NODE_ID) || (winner == null && Objects.equals(starterId, THIS_NODE_ID))) {
-      if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
-        winner = Integer.valueOf(THIS_NODE_ID);
-      }
-      System.out.println("current winner is " + winner);
       boolean ifCurrent = false;
       System.out.println("LIST: " + Arrays.toString(registry.list()));
       for (String temp : registry.list()) {
-        System.out.println("test: " + temp + "  " + ifCurrent);
         if (ifCurrent) {
-          System.out.println("NEXT: " + temp);
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(temp);
             System.out.println("Call election method in next node: " + temp);
@@ -151,14 +144,11 @@ public class RMINode4 implements RMIInterface {
         ifCurrent = Objects.equals(temp, THIS_NODE_ID);
       }
     } else {
-      if (winner == null || winner < Integer.parseInt(THIS_NODE_ID)) {
-        winner = Integer.valueOf(THIS_NODE_ID);
-      }
       for (String winnerNode : registry.list()) {
         if (winner.toString().equals(winnerNode)) {
           try {
             RMIInterface stub = (RMIInterface) registry.lookup(winnerNode);
-            System.out.println("Informing node " + winnerNode + " of this node's victory");
+            System.out.println("Send victory info");
             stub.victoryMessage(winner.toString());
           } catch (Exception e) {
             e.printStackTrace();
@@ -172,13 +162,13 @@ public class RMINode4 implements RMIInterface {
   @Override
   public void victoryMessage(String winner) throws RemoteException {
     LEADER = winner;
-    System.out.println("Leader send message to other nodes about his win");
+    System.out.println("Send message to other nodes about his win");
     Arrays.stream(registry.list()).forEach(node -> {
           RMIInterface stub;
           if (!node.equals(THIS_NODE_ID) && !node.equals("0")) {
             try {
               stub = (RMIInterface) registry.lookup(node);
-              System.out.println("Node " + node + " is informed about new leader");
+              System.out.println("Send info about new leader to " + node);
               stub.setLeader(winner);
               System.out.println("LEADER: " + LEADER);
             } catch (Exception e) {

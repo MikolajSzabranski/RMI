@@ -28,7 +28,6 @@ public class RMIServer implements RMIServerInterface {
 
   public static void main(String[] args) {
     try {
-//      REGISTRY_HOSTNAME = "127.0.0.1";
       REGISTRY_HOSTNAME = "25.31.77.86";
       REGISTRY_PORT = 5696;
       System.setProperty("java.rmi.server.hostname", REGISTRY_HOSTNAME);
@@ -37,7 +36,7 @@ public class RMIServer implements RMIServerInterface {
 
       REGISTRY = LocateRegistry.createRegistry(REGISTRY_PORT);
       REGISTRY.bind("0", stub);
-      System.out.println("RMI stub is registered. RMIServer is online");
+      System.out.println("RMI stub is registered. \nRMIServer is online");
 
       // verify node liveness
       Timer timer = new Timer();
